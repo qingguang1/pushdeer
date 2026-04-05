@@ -5,17 +5,23 @@ on:
 
 jobs:
   build:
-    # 核心修改：降级到 macOS 13 服务器，完美适配老项目的编译环境
-    runs-on: macos-13
+    runs-on: macos-14 # 强制使用目前支持的最新版苹果 M1 服务器
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Ruby
+        # 核心魔法：在这个新服务器上，单独把 Ruby 环境降级到兼容老代码的 3.0 版本
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0' 
+
       - name: Install Dependencies
         run: |
           cd ios/PushDeer-iOS
-          # 核心修改：强制更新依赖库索引并安装，专治老项目水土不服
+          # 在老版本 Ruby 环境下重新安装编译工具
+          gem install cocoapods ffi
           pod install --repo-update
 
       - name: Build App
