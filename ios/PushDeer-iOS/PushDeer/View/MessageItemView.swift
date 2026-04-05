@@ -103,22 +103,7 @@ struct MessageContentView: View {
 #endif
           }
         }
-        .padding()
-//#if targetEnvironment(macCatalyst)
-        .contextMenu {
-          Button {
-            UIPasteboard.general.string = (messageItem.text ?? "") + "\n" + (messageItem.desp ?? "")
-            HToast.showSuccess(NSLocalizedString("已复制", comment: ""))
-          } label: {
-            Label("复制",systemImage: "doc.on.doc")
-          }
-#if targetEnvironment(macCatalyst)
-          Divider()
-          Button(action: deleteAction) {
-            Label("删除",systemImage: "trash.slash")
-          }
-#endif
-        }
+
 //#endif
 //#if !targetEnvironment(macCatalyst)
 //        .onLongPressGesture {
