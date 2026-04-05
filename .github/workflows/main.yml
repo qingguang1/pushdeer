@@ -1,0 +1,41 @@
+name: Build iOS PushDeer
+
+on:
+  workflow_dispatch: # 允许我们手动点击按钮触发打包
+
+jobs:
+  build:
+    runs-on: macos-latest # 白嫖 GitHub 的最新版 macOS 服务器
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build App
+        run: |
+          cd ios
+          # 核心魔法：告诉 Xcode 绕过苹果讨厌的开发者证书，强制编译
+          xcodebuild clean archive \
+            -workspace PushDeer.xcworkspace \
+            -scheme PushDeer \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath $PWD/build/PushDeer.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Create IPA
+        run: |
+          cd ios
+          mkdir -p Payload
+          # 把编译好的核心程序塞进 Payload 文件夹
+          mv build/PushDeer.xcarchive/Products/Applications/PushDeer.app Payload/
+          # 压缩制作成标准格式的 IPA 安装包
+          zip -qr PushDeer-unsigned.ipa Payload
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PushDeer-iOS18-Fix # 下载时的压缩包名字
+          path: ios/PushDeer-unsigned.ipa # 把刚才做好的包传给你
