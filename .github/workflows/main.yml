@@ -5,7 +5,8 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    # 核心修改：降级到 macOS 13 服务器，完美适配老项目的编译环境
+    runs-on: macos-13
 
     steps:
       - name: Checkout code
@@ -14,8 +15,8 @@ jobs:
       - name: Install Dependencies
         run: |
           cd ios/PushDeer-iOS
-          # 关键补丁：让服务器先下载所有的第三方代码包
-          pod install
+          # 核心修改：强制更新依赖库索引并安装，专治老项目水土不服
+          pod install --repo-update
 
       - name: Build App
         run: |
