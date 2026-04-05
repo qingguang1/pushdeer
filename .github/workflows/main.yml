@@ -11,9 +11,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install Dependencies
+        run: |
+          cd ios/PushDeer-iOS
+          # 关键补丁：让服务器先下载所有的第三方代码包
+          pod install
+
       - name: Build App
         run: |
-          # 修复了路径：进入正确的工程所在目录
           cd ios/PushDeer-iOS
           xcodebuild clean archive \
             -workspace PushDeer.xcworkspace \
@@ -27,7 +32,6 @@ jobs:
 
       - name: Create IPA
         run: |
-          # 修复了路径：在正确的目录下打包
           cd ios/PushDeer-iOS
           mkdir -p Payload
           mv build/PushDeer.xcarchive/Products/Applications/PushDeer.app Payload/
@@ -37,5 +41,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PushDeer-iOS18-Fix
-          # 修复了路径：从正确的位置提取打包好的文件
           path: ios/PushDeer-iOS/PushDeer-unsigned.ipa
